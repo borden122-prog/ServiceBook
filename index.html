@@ -24,68 +24,119 @@
         <ul id="maintenanceList" class="maintenance-list"></ul>
 
         <!-- Кнопка добавления обслуживания -->
-        <button id="addMaintenanceBtn" onclick="openMaintenanceModal()">Добавить обслуживание</button>
+        <button id="addMaintenanceBtn" onclick="startMaintenanceFlow()">Добавить обслуживание</button>
     </div>
 
     <!-- Модалка редактирования пробега -->
-    <div id="mileageModal" class="modal">
+    <div id="mileageModal" class="modal bottom-sheet">
         <div class="modal-content">
-            <h3>Редактировать пробег</h3>
+            <div class="modal-header">
+                <h3>Редактировать пробег</h3>
+                <button class="close-btn" onclick="closeMileageModal()">✕</button>
+            </div>
             <input type="number" id="mileageInputModal" placeholder="0" />
             <div class="modal-buttons">
                 <button onclick="saveMileageModal()">Сохранить</button>
-                <button class="close-btn" onclick="closeMileageModal()">Отмена</button>
             </div>
         </div>
     </div>
 
-    <!-- Модалка добавления обслуживания -->
-    <div id="maintenanceModal" class="modal">
+    <!-- Многошаговое добавление обслуживания -->
+    <div id="maintenanceFlowModal" class="modal bottom-sheet">
         <div class="modal-content">
-            <h3>Добавить обслуживание</h3>
-            <form id="maintenanceForm">
-                <label>Пробег</label>
-                <input type="number" id="serviceMileage" />
-
-                <label>Дата</label>
-                <input type="date" id="serviceDate" />
-
-                <label>Расходники</label>
-                <div class="items-list">
-                    <label><input type="checkbox" name="items" value="Замена масла"> Замена масла</label>
-                    <label><input type="checkbox" name="items" value="Воздушный фильтр"> Воздушный фильтр</label>
-                    <label><input type="checkbox" name="items" value="Тормозные колодки"> Тормозные колодки</label>
-                    <label><input type="checkbox" name="items" value="Свечи зажигания"> Свечи зажигания</label>
+            <!-- Шаг 1: Дата и пробег -->
+            <div id="step1" class="flow-step">
+                <div class="modal-header">
+                    <h3>Когда было обслуживание?</h3>
+                    <button class="close-btn" onclick="closeMaintenanceFlow()">✕</button>
                 </div>
-
-                <label>Примечания</label>
-                <textarea id="serviceNotes"></textarea>
-
+                <div class="form-group">
+                    <label>Дата обслуживания</label>
+                    <input type="date" id="serviceDate" />
+                </div>
+                <div class="form-group">
+                    <label>Пробег на момент обслуживания</label>
+                    <input type="number" id="serviceMileage" placeholder="0" />
+                </div>
                 <div class="modal-buttons">
-                    <button type="submit">Сохранить</button>
-                    <button type="button" class="close-btn" onclick="closeMaintenanceModal()">Отмена</button>
+                    <button onclick="nextStep()">Далее</button>
                 </div>
-            </form>
+            </div>
+
+            <!-- Шаг 2: Расходники -->
+            <div id="step2" class="flow-step" style="display: none;">
+                <div class="modal-header">
+                    <h3>Какие расходники меняли?</h3>
+                    <button class="close-btn" onclick="closeMaintenanceFlow()">✕</button>
+                </div>
+                <div class="form-group">
+                    <div class="items-list">
+                        <label><input type="checkbox" name="items" value="Замена масла"> Замена масла</label>
+                        <label><input type="checkbox" name="items" value="Воздушный фильтр"> Воздушный фильтр</label>
+                        <label><input type="checkbox" name="items" value="Тормозные колодки"> Тормозные колодки</label>
+                        <label><input type="checkbox" name="items" value="Свечи зажигания"> Свечи зажигания</label>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="prevStep()">Назад</button>
+                    <button onclick="nextStep()">Далее</button>
+                </div>
+            </div>
+
+            <!-- Шаг 3: Дополнительные работы -->
+            <div id="step3" class="flow-step" style="display: none;">
+                <div class="modal-header">
+                    <h3>Дополнительные работы</h3>
+                    <button class="close-btn" onclick="closeMaintenanceFlow()">✕</button>
+                </div>
+                <div class="form-group">
+                    <label>Примечания о дополнительных работах</label>
+                    <textarea id="serviceNotes" placeholder="Опишите дополнительные работы, если были..."></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="prevStep()">Назад</button>
+                    <button onclick="saveMaintenance()">Сохранить</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Модалка просмотра обслуживания -->
-    <div id="maintenanceViewModal" class="modal">
+    <div id="maintenanceViewModal" class="modal bottom-sheet">
         <div class="modal-content">
+            <div class="modal-header">
+                <h3>Детали обслуживания</h3>
+                <button class="close-btn" onclick="closeViewModal()">✕</button>
+            </div>
             <div id="maintenanceDetails"></div>
-            <button class="close-btn" onclick="closeViewModal()">Закрыть</button>
         </div>
     </div>
 
     <!-- Модалка статуса ТО -->
-    <div id="statusModal" class="modal">
+    <div id="statusModal" class="modal bottom-sheet">
         <div class="modal-content">
-            <h3>Статус ТО</h3>
+            <div class="modal-header">
+                <h3>Статус ТО</h3>
+                <button class="close-btn" onclick="closeStatusModal()">✕</button>
+            </div>
             <div id="statusList"></div>
-            <button class="close-btn" onclick="closeStatusModal()">Закрыть</button>
         </div>
     </div>
 
     <script src="app.js"></script>
+    <script>
+        // Регистрация Service Worker для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed');
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -33,15 +33,30 @@ body {
 
 /* ===== Статус ТО ===== */
 .status-block {
-    background: #3498db;
-    color: #fff;
-    padding: 0.8rem 1rem;
-    border-radius: 12px;
+    padding: 0.7rem 1rem;
+    border-radius: 50px;
     font-weight: 500;
     margin-bottom: 2.5rem;
     text-align: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    border: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.status-block.status-normal {
+    background: #ecf0f1;
+    color: #7f8c8d;
+}
+
+.status-block.status-warning {
+    background: #fef9e7;
+    color: #f39c12;
+}
+
+.status-block.status-danger {
+    background: #fdf2f2;
+    color: #e74c3c;
 }
 
 /* ===== История обслуживания ===== */
@@ -80,7 +95,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* ===== Модалки ===== */
+/* ===== Bottom Sheet Модалки ===== */
 .modal {
     display: none;
     position: fixed;
@@ -94,31 +109,86 @@ body {
     z-index: 1000;
 }
 
-.modal-content {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 400px;
-    color: #333;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+.bottom-sheet {
+    align-items: flex-end;
+    justify-content: center;
 }
 
-.modal-content h3 {
-    margin-top: 0;
+.bottom-sheet .modal-content {
+    background: #fff;
+    padding: 0;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.bottom-sheet.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+    margin: 0;
     color: #2c3e50;
     font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.modal-header .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header .close-btn:hover {
+    background: #f5f5f5;
+    border-radius: 50%;
+}
+
+/* ===== Форма ===== */
+.form-group {
+    padding: 0 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .modal input, .modal textarea {
     width: 100%;
     padding: 0.8rem;
-    margin: 0.3rem 0 1rem 0;
+    margin: 0;
     border-radius: 8px;
     border: 1px solid #ddd;
     background: #fafafa;
     color: #333;
     box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
 }
 
 .modal input:focus, .modal textarea:focus {
@@ -134,9 +204,13 @@ body {
 
 .modal-buttons {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 0.5rem;
-    margin-top: 1rem;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+}
+
+.modal-buttons button {
+    flex: 1;
 }
 
 .close-btn {
@@ -163,6 +237,7 @@ button {
     font-weight: 500;
     cursor: pointer;
     transition: background 0.3s ease;
+    font-family: 'Nunito', sans-serif;
 }
 
 button:hover {
@@ -174,19 +249,32 @@ button:hover {
     background: #f8f9fa;
     padding: 1rem;
     border-radius: 8px;
-    margin: 0.5rem 0 1rem 0;
+    margin: 0;
 }
 
 .items-list label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
     cursor: pointer;
     color: #2c3e50;
+    font-weight: 500;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.items-list label:hover {
+    background: #e9ecef;
+}
+
+.items-list label:last-child {
+    margin-bottom: 0;
 }
 
 .items-list input[type="checkbox"] {
-    margin-right: 0.5rem;
+    margin-right: 0.8rem;
     width: auto;
+    transform: scale(1.2);
 }
 
 /* ===== Статус элементы ===== */
@@ -211,6 +299,11 @@ button:hover {
     font-weight: 500;
 }
 
+/* ===== Flow Steps ===== */
+.flow-step {
+    min-height: 300px;
+}
+
 /* ===== Плавающая кнопка на мобильных ===== */
 @media (max-width: 600px) {
     #addMaintenanceBtn {
@@ -224,4 +317,35 @@ button:hover {
         font-size: 1.1rem;
         box-shadow: 0 4px 20px rgba(52, 152, 219, 0.3);
     }
+    
+    .bottom-sheet .modal-content {
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh;
+    }
+    
+    .modal-header {
+        padding: 1.2rem 1.2rem 0.8rem 1.2rem;
+    }
+    
+    .form-group {
+        padding: 0 1.2rem;
+    }
+    
+    .modal-buttons {
+        padding: 0.8rem 1.2rem 1.2rem 1.2rem;
+    }
+}
+
+/* ===== Анимации ===== */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.bottom-sheet.show .modal-content {
+    animation: slideUp 0.3s ease;
 }
