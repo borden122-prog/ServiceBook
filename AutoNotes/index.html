@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Service Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Пробег -->
+        <div id="mileageDisplay" class="mileage-block">
+            <span id="currentMileage">0 км</span>
+            <span class="edit-icon">✏️</span>
+        </div>
+
+        <!-- Статус ТО -->
+        <div id="maintenanceStatus" class="status-block" onclick="openStatusModal()">
+            Загрузка...
+        </div>
+
+        <!-- История обслуживания -->
+        <ul id="maintenanceList" class="maintenance-list"></ul>
+
+        <!-- Кнопка добавления обслуживания -->
+        <button id="addMaintenanceBtn" onclick="openMaintenanceModal()">Добавить обслуживание</button>
+    </div>
+
+    <!-- Модалка редактирования пробега -->
+    <div id="mileageModal" class="modal">
+        <div class="modal-content">
+            <h3>Редактировать пробег</h3>
+            <input type="number" id="mileageInputModal" placeholder="0" />
+            <div class="modal-buttons">
+                <button onclick="saveMileageModal()">Сохранить</button>
+                <button class="close-btn" onclick="closeMileageModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка добавления обслуживания -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content">
+            <h3>Добавить обслуживание</h3>
+            <form id="maintenanceForm">
+                <label>Пробег</label>
+                <input type="number" id="serviceMileage" />
+
+                <label>Дата</label>
+                <input type="date" id="serviceDate" />
+
+                <label>Расходники</label>
+                <div class="items-list">
+                    <label><input type="checkbox" name="items" value="Замена масла"> Замена масла</label>
+                    <label><input type="checkbox" name="items" value="Воздушный фильтр"> Воздушный фильтр</label>
+                    <label><input type="checkbox" name="items" value="Тормозные колодки"> Тормозные колодки</label>
+                    <label><input type="checkbox" name="items" value="Свечи зажигания"> Свечи зажигания</label>
+                </div>
+
+                <label>Примечания</label>
+                <textarea id="serviceNotes"></textarea>
+
+                <div class="modal-buttons">
+                    <button type="submit">Сохранить</button>
+                    <button type="button" class="close-btn" onclick="closeMaintenanceModal()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка просмотра обслуживания -->
+    <div id="maintenanceViewModal" class="modal">
+        <div class="modal-content">
+            <div id="maintenanceDetails"></div>
+            <button class="close-btn" onclick="closeViewModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модалка статуса ТО -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <h3>Статус ТО</h3>
+            <div id="statusList"></div>
+            <button class="close-btn" onclick="closeStatusModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

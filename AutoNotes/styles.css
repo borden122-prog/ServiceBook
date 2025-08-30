@@ -1,0 +1,227 @@
+/* ===== Общие стили ===== */
+body {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+    padding-top: 40px;
+}
+
+/* ===== Блок пробега ===== */
+.mileage-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    color: #2c3e50;
+}
+
+.mileage-block .edit-icon {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+    color: #7f8c8d;
+}
+
+/* ===== Статус ТО ===== */
+.status-block {
+    background: #3498db;
+    color: #fff;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* ===== История обслуживания ===== */
+.maintenance-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 5rem;
+}
+
+.maintenance-list .card {
+    background: #fff;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.maintenance-list .card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.maintenance-list .card .km-ago {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.maintenance-list .card .maintenance-info {
+    color: #7f8c8d;
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+/* ===== Модалки ===== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    color: #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.modal input, .modal textarea {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.3rem 0 1rem 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.modal input:focus, .modal textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background: #fff;
+}
+
+.modal textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.close-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #c0392b;
+}
+
+button {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+/* ===== Чекбоксы ===== */
+.items-list {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 0.5rem 0 1rem 0;
+}
+
+.items-list label {
+    display: block;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    color: #2c3e50;
+}
+
+.items-list input[type="checkbox"] {
+    margin-right: 0.5rem;
+    width: auto;
+}
+
+/* ===== Статус элементы ===== */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.status-ok {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.status-due {
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+/* ===== Плавающая кнопка на мобильных ===== */
+@media (max-width: 600px) {
+    #addMaintenanceBtn {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: calc(100% - 40px);
+        max-width: 400px;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 20px rgba(52, 152, 219, 0.3);
+    }
+}
