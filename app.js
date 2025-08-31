@@ -4,12 +4,20 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!carData.mileage) carData.mileage = 0;
     if (!carData.mileageHistory) carData.mileageHistory = [];
     if (!carData.maintenanceRecords) carData.maintenanceRecords = [];
+    if (!carData.itemSettings) carData.itemSettings = {};
 
     const maintenanceRules = [
-        { name: "Замена масла", kmInterval: 10000 },
-        { name: "Воздушный фильтр", kmInterval: 15000 },
-        { name: "Тормозные колодки", kmInterval: 30000 },
-        { name: "Свечи зажигания", kmInterval: 40000 }
+        { name: "Масло и фильтр", kmInterval: 10000, icon: "🛢️" },
+        { name: "Воздушный фильтр", kmInterval: 15000, icon: "💨" },
+        { name: "Салонный фильтр", kmInterval: 15000, icon: "🌸" },
+        { name: "Тормозные колодки", kmInterval: 30000, icon: "🛑" },
+        { name: "Тормозная жидкость", kmInterval: 40000, icon: "💧" },
+        { name: "Свечи зажигания", kmInterval: 40000, icon: "⚡" },
+        { name: "Топливный фильтр", kmInterval: 30000, icon: "⛽" },
+        { name: "Ремень ГРМ", kmInterval: 60000, icon: "➰" },
+        { name: "Охлаждающая жидкость", kmInterval: 60000, icon: "❄️" },
+        { name: "Трансмиссионное масло", kmInterval: 50000, icon: "⚙️" },
+        { name: "Ремень генератора", kmInterval: 45000, icon: "🔋" }
     ];
 
     let currentStep = 1;
@@ -38,15 +46,38 @@ document.addEventListener("DOMContentLoaded", function() {
         hideModal(document.getElementById("mileageModal"));
     };
 
-    window.saveMileageModal = function() {
-        const input = document.getElementById("mileageInputModal");
-        const newMileage = Number(input.value || carData.mileage);
+    function getMaxRecordedMileage() {
+        let maxMileage = 0;
+        if (carData.maintenanceRecords.length > 0) {
+            maxMileage = Math.max(...carData.maintenanceRecords.map(record => record.mileage));
+        }
+        return maxMileage;
+    }
+
+    function validateAndUpdateMileage(newMileage) {
+        const maxRecordedMileage = getMaxRecordedMileage();
+        if (newMileage < maxRecordedMileage) {
+            throw new Error(`Судя по вашим записям, пробег не может быть меньше ${maxRecordedMileage} км`);
+        }
         carData.mileage = newMileage;
-        carData.mileageHistory.push({ date: new Date().toISOString().split('T')[0], mileage: newMileage });
+        carData.mileageHistory.push({ 
+            date: new Date().toISOString().split('T')[0], 
+            mileage: newMileage 
+        });
         localStorage.setItem("carAppCarData", JSON.stringify(carData));
         updateMileageDisplay();
         updateMaintenanceStatus();
-        closeMileageModal();
+    }
+
+    window.saveMileageModal = function() {
+        const input = document.getElementById("mileageInputModal");
+        const newMileage = Number(input.value || carData.mileage);
+        try {
+            validateAndUpdateMileage(newMileage);
+            closeMileageModal();
+        } catch (error) {
+            alert(error.message);
+        }
     };
 
     // ===== Многошаговое добавление обслуживания =====
@@ -56,7 +87,9 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Устанавливаем значения по умолчанию
         document.getElementById("serviceDate").value = new Date().toISOString().split('T')[0];
-        document.getElementById("serviceMileage").value = carData.mileage;
+        const serviceMileageInput = document.getElementById("serviceMileage");
+        serviceMileageInput.value = "";
+        serviceMileageInput.placeholder = carData.mileage;
         document.getElementById("serviceNotes").value = "";
         
         // Сбрасываем чекбоксы
@@ -75,7 +108,8 @@ document.addEventListener("DOMContentLoaded", function() {
     window.nextStep = function() {
         if (currentStep === 1) {
             const date = document.getElementById("serviceDate").value;
-            const mileage = Number(document.getElementById("serviceMileage").value);
+            const mileageInput = document.getElementById("serviceMileage");
+            const mileage = Number(mileageInput.value || mileageInput.placeholder);
             
             if (!date || !mileage) {
                 alert("Пожалуйста, заполните все поля");
@@ -114,12 +148,28 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!maintenanceData.items) {
             maintenanceData.items = [];
         }
-        
-        carData.maintenanceRecords.push(maintenanceData);
-        saveData();
-        closeMaintenanceFlow();
-        renderMaintenanceList();
-        updateMaintenanceStatus();
+
+        try {
+            // Если пробег в записи больше текущего, обновляем текущий пробег
+            if (maintenanceData.mileage > carData.mileage) {
+                validateAndUpdateMileage(maintenanceData.mileage);
+            } else {
+                // Проверяем, что пробег не меньше максимального в записях
+                const maxRecordedMileage = getMaxRecordedMileage();
+                if (maintenanceData.mileage < maxRecordedMileage) {
+                    throw new Error(`Пробег не может быть меньше ${maxRecordedMileage} км по предыдущим записям`);
+                }
+            }
+            
+            carData.maintenanceRecords.push(maintenanceData);
+            saveData();
+            closeMaintenanceFlow();
+            renderMaintenanceList();
+            updateMaintenanceStatus();
+            renderItemsGrid();
+        } catch (error) {
+            alert(error.message);
+        }
     };
 
     function showStep(step) {
@@ -148,19 +198,40 @@ document.addEventListener("DOMContentLoaded", function() {
     function renderMaintenanceList() {
         const list = document.getElementById("maintenanceList");
         list.innerHTML = "";
-        carData.maintenanceRecords.forEach((rec, i) => {
+        
+        // Создаем копию массива для сортировки
+        const sortedRecords = [...carData.maintenanceRecords].sort((a, b) => {
+            // Сначала сортируем по пробегу (по убыванию)
+            if (b.mileage !== a.mileage) {
+                return b.mileage - a.mileage;
+            }
+            // Если пробег одинаковый, сортируем по дате (по убыванию)
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        sortedRecords.forEach((rec, i) => {
             const li = document.createElement("li");
             li.className = "card";
             
             // Вычисляем сколько км назад было сделано обслуживание
             const kmAgo = carData.mileage - rec.mileage;
-            const kmAgoText = kmAgo > 0 ? `${kmAgo} км назад` : "Сегодня";
+            let kmAgoText;
+            
+            if (rec.mileage === carData.mileage) {
+                kmAgoText = "Недавно";
+            } else if (kmAgo > 0) {
+                kmAgoText = `${kmAgo} км назад`;
+            } else {
+                kmAgoText = "Сегодня";
+            }
             
             li.innerHTML = `
                 <div class="km-ago">${kmAgoText}</div>
                 <div class="maintenance-info">${rec.items.join(", ")}</div>
             `;
-            li.onclick = () => openViewModal(i);
+            // Используем индекс из оригинального массива для openViewModal
+            const originalIndex = carData.maintenanceRecords.indexOf(rec);
+            li.onclick = () => openViewModal(originalIndex);
             list.appendChild(li);
         });
     }
@@ -295,6 +366,119 @@ document.addEventListener("DOMContentLoaded", function() {
             statusEl.classList.add("status-normal");
         }
     }
+
+    // ===== Табы и расходники =====
+    window.switchTab = function(tabName) {
+        // Обновляем активную кнопку
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+            btn.textContent.toLowerCase() === (tabName === 'records' ? 'записи' : 'расходники')
+        );
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Показываем нужный контент
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabName + 'Tab').classList.add('active');
+
+        if (tabName === 'items') {
+            renderItemsGrid();
+        }
+    };
+
+    function renderItemsGrid() {
+        const grid = document.querySelector('.items-grid');
+        grid.innerHTML = '';
+        grid.style.display = 'flex';
+        grid.style.flexDirection = 'column';
+
+        maintenanceRules.forEach(rule => {
+            const settings = carData.itemSettings[rule.name] || {};
+            const customInterval = settings.interval || rule.kmInterval;
+            
+            // Находим последнюю замену
+            let lastMileage = 0;
+            const recs = carData.maintenanceRecords.filter(r => r.items && r.items.includes(rule.name));
+            if (recs.length) lastMileage = recs[recs.length-1].mileage;
+            
+            // Вычисляем прогресс
+            const kmSinceLastChange = carData.mileage - lastMileage;
+            const progress = (kmSinceLastChange / customInterval) * 100;
+            
+            // Определяем статус
+            let status = '';
+            let statusText = '';
+            if (progress >= 100) {
+                status = 'danger';
+                statusText = 'Требуется замена';
+            } else if (progress >= 90) {
+                status = 'warning';
+                statusText = 'Скоро замена';
+            } else {
+                statusText = `Через ${Math.round(customInterval - kmSinceLastChange)} км`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.onclick = () => openItemEditModal(rule.name);
+            card.innerHTML = `
+                <div class="item-name">${rule.icon} ${rule.name}</div>
+                <div class="item-progress">
+                    <div class="progress-bar ${status}" style="width: ${Math.min(progress, 100)}%"></div>
+                </div>
+                <div class="item-info">${statusText}</div>
+                ${settings.notes ? `<div class="item-info">${settings.notes}</div>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    window.openItemEditModal = function(itemName) {
+        const rule = maintenanceRules.find(r => r.name === itemName);
+        const settings = carData.itemSettings[itemName] || {};
+        
+        document.querySelector('#itemEditModal .modal-header h3').textContent = 
+            `${rule.icon} ${itemName}`;
+        
+        document.getElementById('itemInterval').value = settings.interval || rule.kmInterval;
+        document.getElementById('itemInterval').placeholder = rule.kmInterval;
+        document.getElementById('itemNotes').value = settings.notes || '';
+        
+        showModal(document.getElementById('itemEditModal'));
+        
+        // Сохраняем имя текущего расходника для использования при сохранении
+        document.getElementById('itemEditModal').dataset.itemName = itemName;
+    };
+
+    window.closeItemEditModal = function() {
+        hideModal(document.getElementById('itemEditModal'));
+    };
+
+    window.saveItemEdit = function() {
+        const modal = document.getElementById('itemEditModal');
+        const itemName = modal.dataset.itemName;
+        const interval = Number(document.getElementById('itemInterval').value);
+        const notes = document.getElementById('itemNotes').value.trim();
+        
+        if (!carData.itemSettings[itemName]) {
+            carData.itemSettings[itemName] = {};
+        }
+        
+        if (interval) {
+            carData.itemSettings[itemName].interval = interval;
+        }
+        
+        if (notes) {
+            carData.itemSettings[itemName].notes = notes;
+        }
+        
+        saveData();
+        renderItemsGrid();
+        closeItemEditModal();
+    };
 
     // ===== Модалка статуса ТО =====
     window.openStatusModal = function() {

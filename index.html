@@ -12,7 +12,7 @@
         <!-- Пробег -->
         <div id="mileageDisplay" class="mileage-block">
             <span id="currentMileage">0 км</span>
-            <span class="edit-icon">✏️</span>
+            <img src="assets/edit.svg" class="edit-icon" alt="Редактировать" width="24" height="24">
         </div>
 
         <!-- Статус ТО -->
@@ -20,8 +20,24 @@
             Загрузка...
         </div>
 
-        <!-- История обслуживания -->
-        <ul id="maintenanceList" class="maintenance-list"></ul>
+        <!-- Табы -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('records')">Записи</button>
+                <button class="tab-btn" onclick="switchTab('items')">Расходники</button>
+            </div>
+        </div>
+
+        <!-- Контент табов -->
+        <div id="recordsTab" class="tab-content active">
+            <ul id="maintenanceList" class="maintenance-list"></ul>
+        </div>
+
+        <div id="itemsTab" class="tab-content">
+            <div class="items-grid">
+                <!-- Карточки расходников будут добавляться через JavaScript -->
+            </div>
+        </div>
 
         <!-- Кнопка добавления обслуживания -->
         <button id="addMaintenanceBtn" onclick="startMaintenanceFlow()">Добавить обслуживание</button>
@@ -52,12 +68,9 @@
                 </div>
                 <div class="form-group">
                     <label>Дата обслуживания</label>
-                    <input type="date" id="serviceDate" />
+                    <input type="date" id="serviceDate" style="width:100%;padding:0.8rem;margin:0;border-radius:8px;border:1px solid #ddd;background:#fafafa;color:#333;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:16px;" />
                 </div>
-                <div class="form-group">
-                    <label>Пробег на момент обслуживания</label>
-                    <input type="number" id="serviceMileage" placeholder="0" />
-                </div>
+                <input type="number" id="serviceMileage" placeholder="0" style="width:calc(100% - 3rem);margin:0 1.5rem;padding:0.8rem;border-radius:8px;border:1px solid #ddd;background:#fafafa;color:#333;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:16px;" />
                 <div class="modal-buttons">
                     <button onclick="nextStep()">Далее</button>
                 </div>
@@ -120,6 +133,27 @@
                 <button class="close-btn" onclick="closeStatusModal()">✕</button>
             </div>
             <div id="statusList"></div>
+        </div>
+    </div>
+
+    <!-- Модалка редактирования расходника -->
+    <div id="itemEditModal" class="modal bottom-sheet">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Редактировать расходник</h3>
+                <button class="close-btn" onclick="closeItemEditModal()">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Интервал замены (км)</label>
+                <input type="number" id="itemInterval" placeholder="10000" />
+            </div>
+            <div class="form-group">
+                <label>Заметка о расходнике</label>
+                <textarea id="itemNotes" placeholder="Например: Castrol Edge 5W-40"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="saveItemEdit()">Сохранить</button>
+            </div>
         </div>
     </div>
 
